@@ -1,0 +1,22 @@
+Package: pscal
+Architecture: arm64
+Version: 1.34-1
+Priority: optional
+Section: interpreters
+Maintainer: emkey1 <emkey1@users.noreply.github.com>
+Installed-Size: 30172
+Depends: libc6 (>= 2.38), libcurl4t64 (>= 7.16.2)
+Filename: pool/main/p/pscal/pscal_1.34-1_arm64.deb
+Size: 5482568
+MD5sum: 3f04575e1b701d0e5aef5b09fb5cc840
+SHA1: 0f6e4ea2d67743609c1d290fb44730eb8bfb06b4
+SHA256: 50a708997a8fef03311c44336d7d7c6140804b8a4b6928741403297ea3df5d32
+SHA512: ae51e0fa1e500c84d253e0ffa52b399c47ef57a1824a2b3bbbf8d444c2ac77453fcfa5dc07b141188fdbcbdea1dca4d700d96f6ee42822318330f8826bed5053
+Homepage: https://github.com/emkey1/pscal
+Description: Pascal, C-like, Rea and Aether front ends for the PSCAL bytecode VM
+ PSCAL compiles Pascal, a C-like language, Rea and Aether to bytecode for one
+ virtual machine, and includes exsh, a shell built on the same runtime.
+ .
+ Built from V.1R34-0-gf5a5e8a9 (f5a5e8a9) of github.com/emkey1/pscal for the Devuan 6
+ filesystems of AOK-Workstation, without SDL graphics.
+

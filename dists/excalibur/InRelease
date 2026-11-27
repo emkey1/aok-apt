@@ -1,0 +1,38 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Architectures: arm64 amd64
+Codename: excalibur
+Components: main
+Date: Fri, 27 Nov 2026 12:15:49 +0000
+Description: AOK-Workstation packages for Devuan 6 (excalibur)
+Label: AOK-Workstation
+Origin: AOK-Workstation
+Suite: excalibur
+MD5Sum:
+ edf4c8841c0b2dd41d4aeaccf94b13c0              998 main/binary-amd64/Packages
+ 2a3bdcd7f62cb356becfbbaeef2dbc4c              667 main/binary-amd64/Packages.gz
+ 7dd9b034a253afeb1e6412bfb1d1328b              998 main/binary-arm64/Packages
+ d2343bda4970757781cdc5ac2134a9cd              666 main/binary-arm64/Packages.gz
+SHA1:
+ fd5cde0e176e6050407b927431e5f467cd4df4c8              998 main/binary-amd64/Packages
+ 87613b436ee937a18cd6c72390d2084abd32fc2d              667 main/binary-amd64/Packages.gz
+ 11f3c5fccafc93798621ee4fbb9e2c22b6d7da29              998 main/binary-arm64/Packages
+ 2a29c7dc8d1365fe6c24bcaad961b77576069590              666 main/binary-arm64/Packages.gz
+SHA256:
+ e5bd27d9dd452aaea150a73fc6ac1e86829d5c13ba5386bf00e6d58405f752b6              998 main/binary-amd64/Packages
+ 6f1075c1cdaa9661e6da06df28a2f0a9c5bc066594f646361cce95bc8c058619              667 main/binary-amd64/Packages.gz
+ 840cd7c083e1092fc48099d6168ffb7346e8b5a38748a01052f42c012309a0eb              998 main/binary-arm64/Packages
+ 3eb62e249631c4f3707183d59393dc38b4e0af34567aa31257074694c88a0e2d              666 main/binary-arm64/Packages.gz
+SHA512:
+ ad28cfa6a2fd017b99895c14dab75059fd334675bcfd7357884efb8f2f1db2828445c3feb5aa8854d9fe3dccb490ec06160eeeca37f1d2bbac240dc74b6fa12a              998 main/binary-amd64/Packages
+ 4a1371619b1623a99d9f39f2baa58bf326dee1ec32381fbb78fd913ca18a9920c6de8bee8214cbf9f9352c994a122e235fc806ec8f8c1f7bb41f5dda13ddd319              667 main/binary-amd64/Packages.gz
+ 2672a5f3b4088f3ada3ca8bf3277ea6752a813421d1783c499f6dfb28cee41b80a5c5693fee9dcf8bc2b23463d08f44201f2d0f0095d914a121dae6a2cd43999              998 main/binary-arm64/Packages
+ ba06997a1d3f218390ffc913b485859a4af087be525bf05cc762a7b9a7b083bf435a56c6b3749272809b17dccd6f38f117644183b98a3c6be7d02e36696d98ec              666 main/binary-arm64/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQTRJ0eunm9Vp8E5vW/hbFwxr5haaQUCawl0dQAKCRDhbFwxr5ha
+aQSbAP9WlEW0dHtQ9UVMCzUi+pjFyENmP8/k7vzGr5RtnMvUkwD9EHv9PTHdBScx
+QAKTpPdmy88A4DweQNvnvHhaK/tTPQs=
+=k+lr
+-----END PGP SIGNATURE-----
