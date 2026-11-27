@@ -22,8 +22,9 @@ set -eu
 REF=${1:?usage: build-deb.sh REF OUTDIR}
 OUT=${2:?usage: build-deb.sh REF OUTDIR}
 SRC=${PSCAL_SRC:-/tmp/pscal-src}
-STAGE=/tmp/pscal-stage
 WORK=/tmp/pscal-pkg
+# dpkg-shlibdeps insists the files sit in debian/<package> of a source tree.
+STAGE=$WORK/debian/pscal
 RUNTIME_ROOT=/usr/lib/pscal
 export DEBIAN_FRONTEND=noninteractive
 
@@ -74,7 +75,7 @@ cmake -S . -B build \
 cmake --build build --parallel "$(nproc)"
 
 step "Stage the install"
-rm -rf "$STAGE"
+rm -rf "$WORK"
 DESTDIR="$STAGE" cmake --install build
 [ -x "$STAGE/usr/bin/pascal" ] || die "the install has no /usr/bin/pascal"
 [ -d "$STAGE$RUNTIME_ROOT/lib" ] || die "the install has no $RUNTIME_ROOT/lib"
@@ -109,13 +110,18 @@ find third-party components/*/src/third_party components/*/third-party \
     done
 
 step "Package metadata"
-rm -rf "$WORK"
 mkdir -p "$WORK/debian" "$STAGE/DEBIAN"
 printf 'Source: pscal\n\nPackage: pscal\nArchitecture: any\n' > "$WORK/debian/control"
-DEPENDS=$(cd "$WORK" &&
-    dpkg-shlibdeps -O -e"$STAGE"/usr/bin/* 2>/dev/null |
-    sed -n 's/^shlibs:Depends=//p')
-[ -n "$DEPENDS" ] || die "dpkg-shlibdeps found no dependencies"
+set --
+for f in "$STAGE"/usr/bin/*; do
+    if file -b "$f" | grep -q '^ELF'; then
+        set -- "$@" "-e$f"
+    fi
+done
+[ $# -gt 0 ] || die "no programs in /usr/bin to scan"
+SHLIBDEPS=$(cd "$WORK" && dpkg-shlibdeps -O "$@") || die "dpkg-shlibdeps failed"
+DEPENDS=$(printf '%s\n' "$SHLIBDEPS" | sed -n 's/^shlibs:Depends=//p')
+[ -n "$DEPENDS" ] || die "dpkg-shlibdeps found no dependencies: $SHLIBDEPS"
 INSTALLED_SIZE=$(du -sk --exclude=DEBIAN "$STAGE" | cut -f1)
 
 cat > "$STAGE/DEBIAN/control" <<EOF
