@@ -1,0 +1,65 @@
+name: Verify the repository
+
+# Install pscal from the published repository the way a user's apt does --
+# https://emkey1.github.io/aok-apt, trusted for this repository's aok-apt.asc
+# only -- and run a program in every language. Runs after each publish, and
+# by hand. With a version given, waits (Pages takes a minute or two to
+# deploy) until the repository offers exactly that version.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Expected pscal version (empty = whatever is newest)
+        required: false
+        default: ""
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: false
+        default: ""
+
+jobs:
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: ubuntu-24.04-arm, image: "debian:trixie" }
+          - { runner: ubuntu-24.04, image: "debian:trixie" }
+          - { runner: ubuntu-24.04, image: "devuan/devuan:excalibur" }
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add the source
+        run: |
+          set -e
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates
+          install -m 644 aok-apt.asc /usr/share/keyrings/aok-apt.asc
+          printf '%s\n' 'Types: deb' 'URIs: https://emkey1.github.io/aok-apt' \
+            'Suites: excalibur' 'Components: main' \
+            'Signed-By: /usr/share/keyrings/aok-apt.asc' > /etc/apt/sources.list.d/aok.sources
+      - name: Wait for the expected version
+        env:
+          WANT: ${{ inputs.version }}
+        run: |
+          set -e
+          for i in $(seq 1 30); do
+            apt-get update -o Acquire::https::No-Cache=true >/tmp/update.log 2>&1 || { cat /tmp/update.log; exit 1; }
+            have=$(apt-cache policy pscal | sed -n 's/^  Candidate: //p')
+            echo "candidate: ${have:-none}"
+            if [ -n "$have" ] && [ "$have" != "(none)" ] && { [ -z "$WANT" ] || [ "$have" = "$WANT" ]; }; then
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "the repository never offered pscal ${WANT:-at all}" >&2
+          exit 1
+      - name: Install from the repository and run
+        run: |
+          set -e
+          DEBIAN_FRONTEND=noninteractive apt-get install -y pscal
+          sh pscal/smoke-test.sh --installed

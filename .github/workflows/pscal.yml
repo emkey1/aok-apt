@@ -2,7 +2,8 @@ name: PSCAL packages
 
 # Build PSCAL as a .deb for arm64 and amd64, install each into clean Debian
 # trixie and Devuan 6 containers and run a program in every language, then add
-# the packages to the apt repository on gh-pages and re-sign it.
+# the packages to the apt repository on gh-pages, re-sign it, and install from
+# the published repository as a user would (verify.yml).
 on:
   workflow_dispatch:
     inputs:
@@ -71,6 +72,8 @@ jobs:
     if: ${{ inputs.publish }}
     runs-on: ubuntu-24.04
     concurrency: publish
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -82,6 +85,9 @@ jobs:
           pattern: pscal-*
           path: debs
           merge-multiple: true
+      - name: The version built
+        id: version
+        run: echo "version=$(dpkg-deb --field "$(ls debs/pscal_*_amd64.deb | tail -n 1)" Version)" >> "$GITHUB_OUTPUT"
       - name: apt-ftparchive
         run: command -v apt-ftparchive || { sudo apt-get update && sudo apt-get install -y apt-utils; }
       - name: Add, index and sign
@@ -100,3 +106,9 @@ jobs:
           fi
           git commit -m "pscal ${{ inputs.ref }}-${{ inputs.revision }}"
           git push origin HEAD:gh-pages
+
+  verify:
+    needs: publish
+    uses: ./.github/workflows/verify.yml
+    with:
+      version: ${{ needs.publish.outputs.version }}

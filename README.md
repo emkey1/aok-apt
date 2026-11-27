@@ -62,7 +62,11 @@ branch or commit and a Debian revision. It:
    language, each importing something from `/usr/lib/pscal`
    ([`pscal/smoke-test.sh`](pscal/smoke-test.sh));
 3. adds the packages to `gh-pages`, rebuilds the indexes and signs them
-   ([`scripts/publish.sh`](scripts/publish.sh)).
+   ([`scripts/publish.sh`](scripts/publish.sh));
+4. installs `pscal` from the published repository, trusted for this key only,
+   on both architectures and on Devuan 6, waiting for Pages to offer the new
+   version ([`verify.yml`](.github/workflows/verify.yml), which can also be
+   run on its own).
 
 Versions: PSCAL tag `V.1R34` is `1.34`; a commit past it is
 `1.34+git<N>.<sha>`; the Debian revision follows (`1.34-1`). A published

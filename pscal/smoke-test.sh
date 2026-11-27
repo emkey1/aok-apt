@@ -1,22 +1,25 @@
 #!/bin/sh
-# smoke-test.sh DEBDIR
+# smoke-test.sh DEBDIR | --installed
 # ---------------------------------------------------------------------------
 # Install DEBDIR's pscal .deb for this machine's architecture into a clean
-# Debian or Devuan system (as root, in a container) and run one small program
-# in each language. Each program imports something from the runtime files in
+# Debian or Devuan system (as root, in a container), or with --installed take
+# the pscal already installed (from the repository: verify.yml), and run one
+# small program in each language. Each program imports something from the runtime files in
 # /usr/lib/pscal, so a wrong install root fails here rather than on a user's
 # device. Prints PSCAL SMOKE OK at the end, and nothing like it on a failure.
 # ---------------------------------------------------------------------------
 set -eu
 
-DEBS=${1:?usage: smoke-test.sh DEBDIR}
+DEBS=${1:?usage: smoke-test.sh DEBDIR | --installed}
 export DEBIAN_FRONTEND=noninteractive
 ARCH=$(dpkg --print-architecture)
-DEB=$(ls "$DEBS"/pscal_*_"$ARCH".deb | tail -n 1)
-[ -f "$DEB" ] || { echo "no pscal .deb for $ARCH in $DEBS" >&2; exit 1; }
-
-apt-get update
-apt-get install -y "$(cd "$(dirname "$DEB")" && pwd)/$(basename "$DEB")"
+if [ "$DEBS" != --installed ]; then
+    DEB=$(ls "$DEBS"/pscal_*_"$ARCH".deb | tail -n 1)
+    [ -f "$DEB" ] || { echo "no pscal .deb for $ARCH in $DEBS" >&2; exit 1; }
+    apt-get update
+    apt-get install -y "$(cd "$(dirname "$DEB")" && pwd)/$(basename "$DEB")"
+fi
+dpkg-query -W pscal
 grep -qx /usr/bin/exsh /etc/shells || { echo "exsh is not in /etc/shells" >&2; exit 1; }
 
 T=$(mktemp -d)
