@@ -15,7 +15,8 @@
 # What is in it: every program PSCAL's own `cmake --install` installs (the
 # pascal, clike, rea and aether front ends, clike-repl, exsh, pscalvm and the
 # bytecode tools) in /usr/bin, and their runtime files (units, headers,
-# modules, fonts, examples) in /usr/lib/pscal. SDL graphics are off.
+# fonts, examples) in /usr/lib/pscal, rea's modules in /usr/lib/rea. SDL
+# graphics are off.
 # ---------------------------------------------------------------------------
 set -eu
 
@@ -71,6 +72,7 @@ cmake -S . -B build \
     -DRELEASE_BUILD=ON \
     -DSDL=OFF \
     -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
     -DPSCAL_INSTALL_ROOT="$RUNTIME_ROOT"
 cmake --build build --parallel "$(nproc)"
 
@@ -79,6 +81,10 @@ rm -rf "$WORK"
 DESTDIR="$STAGE" cmake --install build
 [ -x "$STAGE/usr/bin/pascal" ] || die "the install has no /usr/bin/pascal"
 [ -d "$STAGE$RUNTIME_ROOT/lib" ] || die "the install has no $RUNTIME_ROOT/lib"
+# rea does not use the install root: it looks beside its binary, in
+# /usr/lib/rea, which is why CMAKE_INSTALL_LIBDIR is plain lib above (Debian's
+# default, lib/<multiarch>, put its modules where rea never looks).
+[ -f "$STAGE/usr/lib/rea/strings" ] || die "the install has no /usr/lib/rea/strings"
 # The install backs up a running exsh as exsh.previous; never ship one.
 rm -f "$STAGE/usr/bin/exsh.previous"
 for f in "$STAGE"/usr/bin/*; do
