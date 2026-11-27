@@ -48,7 +48,12 @@ jobs:
         run: |
           set -e
           for i in $(seq 1 30); do
-            apt-get update -o Acquire::https::No-Cache=true >/tmp/update.log 2>&1 || { cat /tmp/update.log; exit 1; }
+            # Until Pages has deployed, the files can be missing (404) or old.
+            if ! apt-get update -o Acquire::https::No-Cache=true >/tmp/update.log 2>&1; then
+              grep -E '^(E|W|Err):' /tmp/update.log || tail -3 /tmp/update.log
+              sleep 20
+              continue
+            fi
             have=$(apt-cache policy pscal | sed -n 's/^  Candidate: //p')
             echo "candidate: ${have:-none}"
             if [ -n "$have" ] && [ "$have" != "(none)" ] && { [ -z "$WANT" ] || [ "$have" = "$WANT" ]; }; then
