@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aok-apt: AOK-Workstation's apt repository</title>
+<style>
+  body { font: 16px/1.5 -apple-system, system-ui, sans-serif; max-width: 46rem; margin: 2rem auto; padding: 0 1rem; color: #1d1d1f; }
+  pre { background: #f2f2f4; padding: .8rem 1rem; overflow-x: auto; border-radius: 6px; }
+  code { font: 14px/1.4 ui-monospace, Menlo, monospace; }
+  @media (prefers-color-scheme: dark) { body { background: #111; color: #e8e8ea; } pre { background: #222; } a { color: #8ab4ff; } }
+</style>
+</head>
+<body>
+<h1>aok-apt</h1>
+<p>The apt repository of <a href="https://github.com/emkey1/ish-AOK">AOK-Workstation</a>: packages for
+Devuan 6 (excalibur), arm64 and amd64. Today that is <code>pscal</code>, the
+<a href="https://github.com/emkey1/pscal">PSCAL</a> languages and shell.</p>
+<p>In AOK-Workstation a native root's companion already has this source:</p>
+<pre><code>sudo apt update
+sudo apt install pscal</code></pre>
+<p>Elsewhere, see <a href="https://github.com/emkey1/aok-apt#using-it">the instructions</a>. The repository is signed with
+<a href="aok-apt.asc">this key</a>:</p>
+<pre><code>ed25519 D127 47AE 9E6F 55A7 C139  BD6F E16C 5C31 AF98 5A69</code></pre>
+</body>
+</html>
