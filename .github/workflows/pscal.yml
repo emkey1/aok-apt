@@ -1,0 +1,102 @@
+name: PSCAL packages
+
+# Build PSCAL as a .deb for arm64 and amd64, install each into clean Debian
+# trixie and Devuan 6 containers and run a program in every language, then add
+# the packages to the apt repository on gh-pages and re-sign it.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: PSCAL tag, branch or commit (github.com/emkey1/pscal)
+        required: true
+        default: V.1R34
+      revision:
+        description: Debian revision; bump it to rebuild the same PSCAL commit
+        required: true
+        default: "1"
+      publish:
+        description: Publish to the apt repository
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+          - arch: amd64
+            runner: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
+    container: debian:trixie
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the package
+        env:
+          DEB_REVISION: ${{ inputs.revision }}
+        run: sh pscal/build-deb.sh "${{ inputs.ref }}" out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pscal-${{ matrix.arch }}
+          path: out/*.deb
+          if-no-files-found: error
+
+  test:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: arm64, runner: ubuntu-24.04-arm, image: "debian:trixie" }
+          - { arch: amd64, runner: ubuntu-24.04, image: "debian:trixie" }
+          - { arch: amd64, runner: ubuntu-24.04, image: "devuan/devuan:excalibur" }
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: pscal-${{ matrix.arch }}
+          path: debs
+      - name: Install and run
+        run: sh pscal/smoke-test.sh debs
+
+  publish:
+    needs: test
+    if: ${{ inputs.publish }}
+    runs-on: ubuntu-24.04
+    concurrency: publish
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: site
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pscal-*
+          path: debs
+          merge-multiple: true
+      - name: apt-ftparchive
+        run: command -v apt-ftparchive || { sudo apt-get update && sudo apt-get install -y apt-utils; }
+      - name: Add, index and sign
+        env:
+          APT_SIGNING_KEY: ${{ secrets.APT_SIGNING_KEY }}
+        run: sh scripts/publish.sh site debs
+      - name: Push to gh-pages
+        run: |
+          cd site
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "nothing new to publish"
+            exit 0
+          fi
+          git commit -m "pscal ${{ inputs.ref }}-${{ inputs.revision }}"
+          git push origin HEAD:gh-pages
