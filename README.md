@@ -1,7 +1,7 @@
 # aok-apt: AOK-Workstation's own apt repository
 
 Packages for the Devuan 6 ("excalibur") filesystems of
-[AOK-Workstation](https://github.com/emkey1/ish-AOK), for arm64 and amd64,
+[AOK-Workstation](https://github.com/emkey1/AOK-Workstation), for arm64 and amd64,
 served by GitHub Pages from the `gh-pages` branch:
 
     https://emkey1.github.io/aok-apt
